@@ -3,10 +3,10 @@
 venv_path=~/.venv
 venvs=(
     "torch"
-    "tensorflow"
-    "keras-tensorflow"
-    "keras-jax"
-    "keras-torch"
+    # "tensorflow"
+    # "keras-tensorflow"
+    # "keras-jax"
+    # "keras-torch"
 )
 output_file=results.txt
 
@@ -41,22 +41,24 @@ for venv_name in "${venvs[@]}"; do
         export KERAS_HOME=configs/${venv_name#keras-}
     fi
 
-    printf "compiled\n\n"
-    if [[ $venv_name == torch ]]; then
-        export TORCH_COMPILE="1"
-        for model_name in "${models[@]}"; do
-            printf "$model_name:\n" | tee -a $output_file
-            printf "fit:\n" | tee -a $output_file
-            python benchmark/$model_name/$file_name/fit.py $output_file
-            printf "predict:\n" | tee -a $output_file
-            python benchmark/$model_name/$file_name/predict.py $output_file
-            printf "\n\n" | tee -a $output_file
-        done
-        export TORCH_COMPILE="0"
-        printf "not compiled\n\n"
-    fi
+    # printf "compiled\n\n"
+    # if [[ $venv_name == torch ]]; then
+    #     export TORCH_COMPILE="1"
+    #     for model_name in "${models[@]}"; do
+    #         printf "$model_name:\n" | tee -a $output_file
+    #         printf "fit:\n" | tee -a $output_file
+    #         python benchmark/$model_name/$file_name/fit.py $output_file
+    #         printf "predict:\n" | tee -a $output_file
+    #         python benchmark/$model_name/$file_name/predict.py $output_file
+    #         printf "\n\n" | tee -a $output_file
+    #     done
+    #     export TORCH_COMPILE="0"
+    # fi
 
     for model_name in "${models[@]}"; do
+        export PJRT_DEVICE=CUDA
+        export GPU_NUM_DEVICES=1
+        printf "not compiled\n\n"
         printf "$model_name:\n" | tee -a $output_file
         printf "fit:\n" | tee -a $output_file
         python benchmark/$model_name/$file_name/fit.py $output_file
